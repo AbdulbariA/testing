@@ -48,6 +48,68 @@ if(isset($_POST['verzenden'])){
     echo $melding;
 ?>
 
+OR With page
+
+<?php
+    session_start();
+    //hiermee check of je uberhaupt een formulier kan verzenden
+    if (isset($_POST['send'])) {
+        if (!empty($_POST['name']) && !empty($_POST['email']) && !empty($_POST['class']) && !empty($_POST['workshop']) && !empty($_POST['check'])) {
+            $check = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+            if ($check === false) {
+                echo 'vul een geldig e-mail in';
+            } else {
+                //header('Location: welcome.php');
+                $_SESSION['name'] = $_POST['name'];
+                $_SESSION['email'] = $_POST['email'];
+                $_SESSION['class'] = $_POST['class'];
+                $_SESSION['workshop'] = $_POST['workshop'];
+                header('Location: welcome.php');
+            }
+        } else {
+            echo 'niet alle velden zijn ingevuld';
+        }
+    } else {
+        echo 'je bent er voor het eerst';
+    }
+?>
+
+<form method="POST">
+    <h1> Inschrijfformulier Workshop</h1>
+    <label> Naam: </label>
+    <input type="text" name="name" placeholder="type hier uw naam in"></br>
+    <label> E-mail: </label>
+    <input type="email" name="email" placeholder="typ hier uw email"></br>
+    <label> Klas: </label>
+    <input type="text" name="class" placeholder="typ hier uw klas"></br>
+    <label> Workshops </label></br>
+    <input type="radio" name="workshop" value="Drones"> Drones </br>
+    <input type="radio" name="workshop" value="Rasberry PI"> Rasberry PI </br>
+    <input type="radio" name="workshop" value="Security"> Security </br>
+    <input type="checkbox" name="check"> ik ga akkoord met de voorwaarden </br>
+    <input type="submit" name="send" value="inschrijven">
+</form>
+
+<?php
+    session_start();
+?>
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<h1> Bedankt voor het inschrijven <?php echo $_SESSION['name'] ?></h1>
+
+
+</body>
+</html>
+
 // movie //
 
 <!doctype html>
