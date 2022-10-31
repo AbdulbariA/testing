@@ -91,3 +91,58 @@ td {
     border: 1px solid black;
     width: 100px;
 }
+
+
+// 
+
+<?php
+    session_start();
+    
+    if (isset($_POST['send'])) {
+        if (!empty($_POST['name']) && !empty($_POST['email']) && !empty($_POST['games']) && !empty($_POST['dagdeel']) && !empty($_POST['check'])) {
+            $check = filter_input(INPUT_POST, 'email', FILTER_VALIDATE_EMAIL);
+            if ($check === false) {
+                echo 'vul een geldig e-mail in';
+            } else {
+                $_SESSION['name'] = $_POST['name'];
+                $_SESSION['email'] = $_POST['email'];
+                $_SESSION['games'] = $_POST['games'];
+                $_SESSION['dagdeel'] = $_POST['dagdeel'];
+                header('Location: welcome.php');
+            }
+        } else {
+            echo 'niet alle velden zijn ingevuld';
+        }
+    }
+?>
+
+
+
+
+
+<form method="POST">
+    <h1> Inschrijfformulier game event</h1>
+    <label> Naam: </label>
+    <input type="text" name="name" placeholder="type hier uw naam "></br>
+    <label> E-mail: </label>
+    <input type="email" name="email" placeholder="typ hier uw email"></br>
+<br>
+    <label> Games: </label></br>
+    <input type="radio" name="games" value="Fifa 2022"> Fifa 2022 </br>
+    <input type="radio" name="games" value="Quake"> Quake </br>
+    <input type="radio" name="games" value="Fortnite"> Fortnite </br>
+<br>
+
+    <label> Dagdeel: </label></br>
+    <input type="radio" name="dagdeel" value="ochtend"> ochtend </br>
+    <input type="radio" name="dagdeel" value="middag"> middag </br>
+    <input type="radio" name="dagdeel" value="avond"> avond </br>
+
+
+
+    <input type="checkbox" name="check"> ik ga akkoord met de voorwaarden </br>
+    <input type="submit" name="send" value="inschrijven">
+
+</form>
+
+//
