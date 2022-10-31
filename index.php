@@ -146,3 +146,30 @@ td {
 </form>
 
 //
+
+<?php
+    session_start();
+?>
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<h1> Inschrijven game event <br></h1>
+<?php echo $_SESSION ['email'] ?><br>
+<label> Games: </label>
+<?php echo $_SESSION ['games'] ?><br>
+<label> Dagdeel: </label>
+<?php echo $_SESSION ['dagdeel'] ?>
+
+
+</body>
+</html>
+Footer
+
