@@ -1,5 +1,67 @@
 ////index.php////
 
+ case 'category':
+        $id = $params[2];
+        $titleSuffix = ' | Category';
+        $desserts = getCategoryName($id);
+        include_once "../Templates/product.php";
+        break;
+
+
+///category modules///
+
+<?php
+
+function getCategories():array
+{
+    global $pdo;
+    $categories = $pdo->query('SELECT * FROM category')->fetchAll(PDO::FETCH_CLASS, 'Category');
+    return $categories;
+}
+
+function getCategoryName($id):array
+{
+    global $pdo;
+    $product = $pdo->query('SELECT * FROM product where category_id='.$id)->fetchAll(PDO::FETCH_CLASS, 'product');
+    return $product;
+}
+
+
+
+///login////
+
+    case 'login':
+        $titleSuffix = ' | Login';
+        if(isset($_POST['login'])){
+            $result = checkLogin();
+            switch ($result){
+                case 'ADMIN':
+                    header("Location: /admin/home");
+                    break;
+                case 'FAILURE':
+                    $message = "Email en/of wachtwoord kloppen niet";
+                    include_once "../Templates/inloggen.php";
+                    break;
+                case 'INCOMPLETE':
+                    $message = "Formulier niet volledig ingevuld";
+                    include_once "../Templates/inloggen.php";
+                    break;
+            }
+        }
+        else {
+            include_once "../Templates/inloggen.php";
+        }
+        break;
+
+
+
+
+
+
+
+
+////index.php////
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
