@@ -1,7 +1,33 @@
-table, tr, td, th{
-    border: 1px solid black;
-    text-align: center;
-}
-table {
-    width: 50%;
-}
+{% extends 'base.html.twig' %}
+{% block body %}
+
+    <section class="py-5 text-center container-fluid">
+        <div class="col-lg-3 col-md8 mx-auto">
+            <h1 class="fw-light">Welcome to Sopranos<h1>
+            <p class="lead text-muted fs-4"> Welcome to Sopranos a website that i build because my love for pizza i made this website knowing that there
+                are others out there like me that are pizza enthusiasts on this website you will be able to order pizzas here to. !</p>
+        </div>
+    </section>
+
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            {% for category in categories %}
+            <div class="col-4 g-3" >
+                <div class="card card text-center">
+                    <img src="{{ asset(category.image) }}" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ category.name }}</h5>
+                        <p class="card-text">{{ category.description }}</p>
+{#                        <button class="btn btn-primary text-light">#}
+                            <a href="{{ path ('app_product', {id: category.id})}}"class="btn btn-primary text-light">Order</a>
+{#                        </button>#}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+
+{% endblock %}
+
+
