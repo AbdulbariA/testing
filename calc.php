@@ -1,3 +1,131 @@
+
+use App\Entity\Genre;
+
+///controller//
+
+    #[Route('/', name: 'app_home')]
+    public function home(GenreRepository $genreRepository): Response
+    {
+        $genres = $genreRepository->findAll();
+        return $this->render('film/index.html.twig', [
+            'genres' => $genres,
+
+        ]);
+    }
+
+    #[Route('/film/{id}', name: 'app_film')]
+    public function films(Genre $genre, FilmRepository $filmRepository): Response
+    {
+        $genreName = $genre->getName();
+        $films = $filmRepository->findBy(['genre'=>$genre]);
+        return $this->render('film/films.html.twig', [
+            'films' => $films,
+            'name' => $genreName
+
+        ]);
+    }
+
+
+
+\\index/home\\
+
+
+
+    <h1>Genres</h1>
+    {% for genre in genres %}
+        <a href="{{ path('app_film', {id: genre.id}) }}">{{ genre.name }}</a>
+    {% endfor %}
+
+
+
+
+\\film/whatever\\
+
+    <h1>{{ name }}</h1>
+
+    {% for film in films %}
+    <table class="table">
+        <tr>
+            <td>
+                film name:
+                <a>{{ film.title }}</a>
+            </td>
+
+            <td>
+                film description:
+                <a>{{ film.description }}</a>
+            </td>
+
+            <td>
+                film budget:
+                <a>{{ film.budget }}</a>
+            </td>
+
+        </tr>
+
+        {% endfor %}
+    </table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
