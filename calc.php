@@ -1,3 +1,12 @@
+??db?? DATABASE_URL="mysql://root:@127.0.0.1:3306/Cars?serverVersion=mariadb-10.5.8" 
+
+or
+
+DATABASE_URL="mysql://root:@127.0.0.1:3306/Films?serverVersion=10.4.24-MariaDB"
+
+
+
+
 
 use App\Entity\Genre;
 
