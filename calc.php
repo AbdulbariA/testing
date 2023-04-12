@@ -77,6 +77,23 @@ use App\Entity\Genre;
 
 
 
+<table class="table">
+<tr>
+    <th>Model</th>
+    <th>type</th>
+    <th>price</th>
+</tr>
+
+{% for auto in autos %}
+       <tr>
+           <td>{{ auto.model }}</td>
+           <td>{{ auto.type }}</td>
+           <td>{{ auto.prijs }}</td>
+       </tr>
+
+    {% endfor %}
+    </table>
+
 
 
 
