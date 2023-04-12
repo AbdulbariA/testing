@@ -46,8 +46,6 @@ use App\Entity\Genre;
     {% endfor %}
 
 
-
-
 \\film/whatever\\
 
     <h1>{{ name }}</h1>
@@ -77,6 +75,7 @@ use App\Entity\Genre;
 
 
 
+
 <table class="table">
 <tr>
     <th>Model</th>
@@ -89,10 +88,56 @@ use App\Entity\Genre;
            <td>{{ auto.model }}</td>
            <td>{{ auto.type }}</td>
            <td>{{ auto.prijs }}</td>
+           <td> <a class="btn btn-primary" href="{{ path('app_details',{id: auto.id}) }}">details</a>  </td>
+
        </tr>
+
 
     {% endfor %}
     </table>
+
+
+
+
+    #[Route('/', name: 'app_home')]
+    public function home(AutosRepository $autosRepository): Response
+    {
+        $autos = $autosRepository->findAll();
+        return $this->render('autos/index.html.twig', [
+            'autos' => $autos,
+        ]);
+    }
+
+    #[Route('/details/{id}', name: 'app_details')]
+    public function details( Autos $auto, AutosRepository $autosRepository): Response
+    {
+        return $this->render('autos/details.html.twig', [
+            'auto' => $auto,
+        ]);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
