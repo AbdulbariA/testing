@@ -74,7 +74,7 @@ use App\Entity\Genre;
     </table>
 
 
-
+///index////
 
 <table class="table">
 <tr>
