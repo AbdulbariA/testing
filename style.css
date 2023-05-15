@@ -1,33 +1,179 @@
+
+namespace App\Controller;
+
+use App\Entity\Provincie;
+use App\Form\ProvincieType;
+use App\Form\ProvincieUpdateType;
+use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+
+class GuestController extends AbstractController
+{
+    #[Route('/', name: 'home')]
+    public function ShowHome(EntityManagerInterface $entityManager): Response
+    {
+        $provinces = $entityManager->getRepository(Provincie::class)->findAll();
+        return $this->render('guest/home.html.twig', [
+            'provinces' => $provinces,
+        ]);
+    }
+
+    #[Route('/cities/{id}', name: 'cities')]
+    public function ShowCities(int $id, EntityManagerInterface $entityManager): Response
+    {
+        $province = $entityManager->getRepository(Provincie::class)->find($id);
+        return $this->render('guest/cities.html.twig', [
+            'province' => $province,
+        ]);
+    }
+
+
+    #[Route('/insert/', name: 'insert_prov')]
+    public function insert(ManagerRegistry $doctrine, Request $request): Response
+    {
+        $entityManager = $doctrine->getManager();
+        $provincie = new Provincie();
+
+        $form = $this->createForm(ProvincieType::class, $provincie);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $provincie = $form->getData();
+            $entityManager->persist($provincie);
+            $entityManager->flush();
+            $this->addFlash('success', 'Insert successvol!');
+            return $this->redirectToRoute('home');
+        }
+
+        return $this->renderForm('guest/insert.html.twig', [
+            'form' => $form
+        ]);
+    }
+
+    
+
+    #[Route('/update/{id}', name: 'prov_update')]
+    public function update(ManagerRegistry $doctrine, Request $request, int $id): Response
+    {
+        $entitymanager = $doctrine->getManager();
+        $province = $doctrine->getRepository(Provincie::class)->find($id);
+        $form = $this->createForm(ProvincieUpdateType::class, $province);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $entitymanager->flush();
+            $this->addFlash('success', 'Update successvol!');
+            return $this->redirectToRoute('cities', [
+                'id' => $province->getId()
+            ]);
+        }
+        return $this->renderForm('guest/update.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
+
+    #[Route('/delete/{id}', name: 'prov_delete')]
+    public function delete(Provincie $delete, EntityManagerInterface $entityManager ,int $id): Response
+    {
+        $deleteProvince=$delete->getModel();
+        $deleteProvince= $entityManager->getRepository(Province::class)->find($id);
+        if (!$deleteProvince){
+            throw $this->createNotFoundException(
+                'No product found for id '.$id
+            );
+        }
+        $entityManager->remove($deleteProvince);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('home',[
+            'deleteProvince'=>$deleteProvince
+        ]);
+
+    }
+
+}
+
+////// home //////
+
 {% extends 'base.html.twig' %}
+
+{% block title %}Hello!{% endblock %}
+
 {% block body %}
-
-    <section class="py-5 text-center container-fluid">
-        <div class="col-lg-3 col-md8 mx-auto">
-            <h1 class="fw-light">Welcome to Sopranos<h1>
-            <p class="lead text-muted fs-4"> Welcome to Sopranos a website that i build because my love for pizza i made this website knowing that there
-                are others out there like me that are pizza enthusiasts on this website you will be able to order pizzas here to. !</p>
-        </div>
-    </section>
-
-    <div class="container-fluid">
-        <div class="row justify-content-center">
-            {% for category in categories %}
-            <div class="col-4 g-3" >
-                <div class="card card text-center">
-                    <img src="{{ asset(category.image) }}" class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ category.name }}</h5>
-                        <p class="card-text">{{ category.description }}</p>
-{#                        <button class="btn btn-primary text-light">#}
-                            <a href="{{ path ('app_product', {id: category.id})}}"class="btn btn-primary text-light">Order</a>
-{#                        </button>#}
-                    </div>
-                </div>
-            </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Provincie naam</th>
+            <th scope="col"> </th>
+            <th scope="col"> </th>
+        </tr>
+        </thead>
+        {% for province in provinces %}
+            <tr>
+                <td>{{ province.naam }}</td>
+                <td><a herf="{{ path('cities', {id: province.id}) }}" class="btn btn-primary">Staden</a></td>
+                <td><a herf="{{ path('prov_update', {id: province.id}) }}" class="btn btn-primary">update</a></td>
+            </tr>
         {% endfor %}
-        </div>
-    </div>
+        </tbody>
+    </table>
+    <a herf="/insert_prov" class="btn btn-info ms-2">insert</a>
+{% endblock %}
+
+
+
+
+// update form and insert //
+
+
+{% block body %}
+    <h1>Provincie updaten</h1>
+
+    {{ form(form)}}
 
 {% endblock %}
+
+
+///cities details ////
+
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<table class="table">
+    <thead>
+    <tr>
+        <th scope="col">stad naam</th>
+        <th scope="col"> </th>
+        <th scope="col"> </th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for city in province.city %}
+    <tr>
+        <td>{{ city.naam }}</td>
+        <td><a herf="{{ path ('prov_delete',{id: province.id})}}" class="btn btn-danger">delete</a></td>
+
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+    <td><a herf="{{ path('home') }}" class="btn btn-success">back</a></td>
+{% endblock %}
+
+
+\\\\ form \\\
+
+       $builder
+            ->add('naam')
+            ->add('submit', SubmitType::class);
+    }
+
+
+
+
+
 
 
