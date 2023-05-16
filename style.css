@@ -154,13 +154,13 @@ class GuestController extends AbstractController
     {% for city in province.city %}
     <tr>
         <td>{{ city.naam }}</td>
-        <td><a herf="{{ path ('prov_delete',{id: province.id})}}" class="btn btn-danger">delete</a></td>
+        <td><a href="{{ path ('prov_delete',{id: province.id})}}" class="btn btn-danger">delete</a></td>
 
     </tr>
     {% endfor %}
     </tbody>
 </table>
-    <td><a herf="{{ path('home') }}" class="btn btn-success">back</a></td>
+    <td><a href="{{ path('home') }}" class="btn btn-success">back</a></td>
 {% endblock %}
 
 
