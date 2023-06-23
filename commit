@@ -138,6 +138,8 @@
         <td>{{ dier.name }}</td>
         <td>{{ dier.description }}</td>
             <td>{{ dier.user.part }}</td>
+             <td>{{ story.date |date("d,m,Y")}}</td>
+
         </tr>
 
     {% endfor %}
