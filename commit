@@ -183,6 +183,33 @@
             ]
         );
     }
+
+//// update ///
+
+#[Route("/update/{id}", name: "app_update")]
+    public function update(Request $request, EntityManagerInterface $entityManager,int $id): Response
+    {
+        $updatin = $entityManager->getRepository(Lesson::class)->find($id);
+
+        $form = $this->createForm(AddLessonType::class, $updatin);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $add = $form->getData();
+
+            $entityManager->persist($add);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Informatie gewijzigd');
+
+            return $this->redirectToRoute('app_admin');
+
+        }
+        return $this->renderForm('admin\update.html.twig', [
+                'form' => $form
+            ]
+        );
+    }
+
     #[Route('/deletedier/{id}', name: 'app_deletedier')]
     public function deleteUser(EntityManagerInterface $entityManager, int $id): Response
     {
