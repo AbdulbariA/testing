@@ -8,6 +8,44 @@
         ]);
     }
 
+    ///login ///
+
+    #[Route("/login", name: "login")]
+    public function login(AuthenticationUtils $authenticationUtils): Response
+    {
+        $error = $authenticationUtils->getLastAuthenticationError();
+        $lastUsername = $authenticationUtils->getLastUsername();
+        return $this->render('animal/login.html.twig', [
+                'last_username' => $lastUsername,
+                'error' => $error,
+            ]
+        );
+    }
+
+    #[Route("/logout", name: "logout")]
+    public function logout(): Response
+    {
+        return $this->redirectToRoute('app_animal');
+
+    }
+
+    #[Route("/redirect", name: "redirect")]
+
+    public function redirectAction(Security $security)
+    {
+        if ($security->isGranted('ROLE_ADMIN')) {
+            return $this->redirectToRoute('app_admin');
+        }
+        if ($security->isGranted('ROLE_MEMBER')) {
+            return $this->redirectToRoute('app_member');
+        }
+
+        return $this->redirectToRoute('app_animal');
+    }
+
+}
+
+
 //// BASE ///
 
   {% block stylesheets %}
@@ -76,44 +114,6 @@ body {margin:0;}
     height: 1500px; /* Used in this example to enable scrolling */
 }
 
-
-
-    ///login ///
-
-    #[Route("/login", name: "login")]
-    public function login(AuthenticationUtils $authenticationUtils): Response
-    {
-        $error = $authenticationUtils->getLastAuthenticationError();
-        $lastUsername = $authenticationUtils->getLastUsername();
-        return $this->render('animal/login.html.twig', [
-                'last_username' => $lastUsername,
-                'error' => $error,
-            ]
-        );
-    }
-
-    #[Route("/logout", name: "logout")]
-    public function logout(): Response
-    {
-        return $this->redirectToRoute('app_animal');
-
-    }
-
-    #[Route("/redirect", name: "redirect")]
-
-    public function redirectAction(Security $security)
-    {
-        if ($security->isGranted('ROLE_ADMIN')) {
-            return $this->redirectToRoute('app_admin');
-        }
-        if ($security->isGranted('ROLE_MEMBER')) {
-            return $this->redirectToRoute('app_member');
-        }
-
-        return $this->redirectToRoute('app_animal');
-    }
-
-}
 
 
 /// LOGIN TWIG///
