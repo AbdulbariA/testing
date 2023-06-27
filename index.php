@@ -1,427 +1,144 @@
-////index.php////
+ #[Route('/', name: 'app_countries')]
+    public function showContinent(ContinentRepository $continentRepository): Response
+    {
+        $showContinent = $continentRepository->findAll();
+        return $this->render('countries/index.html.twig', [
+            'showre' => $showContinent,
+        ]);
+    }
 
- case 'category':
-        $id = $params[2];
-        $titleSuffix = ' | Category';
-        $desserts = getCategoryName($id);
-        include_once "../Templates/product.php";
-        break;
+    #[Route('/landen/{id}', name: 'app_landen')]
+    public function details(int $id,CountryRepository $countryRepository): Response
+    {
+        $showlanden = $countryRepository->findBy(['continent'=>$id]);
+        return $this->render('countries/landen.html.twig', [
+            'landen' => $showlanden,
+        ]);
+    }
 
+    #[Route('/insert', name: 'app_add')]
+    public function add(Request $request, EntityManagerInterface $entityManager): Response
+    {
 
-///category modules///
+        $add = new Country();
 
-<?php
+        $form = $this->createForm(LandType::class, $add);
 
-function getCategories():array
-{
-    global $pdo;
-    $categories = $pdo->query('SELECT * FROM category')->fetchAll(PDO::FETCH_CLASS, 'Category');
-    return $categories;
-}
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
 
-function getCategoryName($id):array
-{
-    global $pdo;
-    $product = $pdo->query('SELECT * FROM product where category_id='.$id)->fetchAll(PDO::FETCH_CLASS, 'product');
-    return $product;
-}
+            $add = $form->getData();
 
-
-
-///login////
-
-    case 'login':
-        $titleSuffix = ' | Login';
-        if(isset($_POST['login'])){
-            $result = checkLogin();
-            switch ($result){
-                case 'ADMIN':
-                    header("Location: /admin/home");
-                    break;
-                case 'FAILURE':
-                    $message = "Email en/of wachtwoord kloppen niet";
-                    include_once "../Templates/inloggen.php";
-                    break;
-                case 'INCOMPLETE':
-                    $message = "Formulier niet volledig ingevuld";
-                    include_once "../Templates/inloggen.php";
-                    break;
-            }
+            $entityManager->persist($add);
+            $entityManager->flush();
+            return $this->redirectToRoute('app_countries');
         }
-        else {
-            include_once "../Templates/inloggen.php";
+
+        return $this->renderForm('countries/insert.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
+    #[Route('/update/{id}', name: 'app_update')]
+    public function update(Continent $continent, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $LandId = $continent->getId();
+        $landd = $entityManager->getRepository(Continent::class)->find($LandId);
+
+        $form = $this->createForm(ContinentType::class, $landd);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $add = $form->getData();
+
+            $entityManager->persist($add);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_countries');
         }
-        break;
 
-
-
-
-
-
-
-
-////index.php////
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- CSS only -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-<!-- JavaScript Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-<link rel="stylesheet" href="style.css">
-    <title>PHPTOETS</title>
-</head>
-<body>
-    <h1>Autovoorraad</h1>
-
-    <?php
-
-    try {
-        $db = new PDO("mysql:host=localhost;dbname=autovoorraad", "root", "");
-
-            $query=$db->prepare("SELECT * FROM autos");
-            $query->execute();
-            $result = $query->fetchAll(PDO::FETCH_ASSOC);
-            foreach($result as $data){
-                echo "<b>" . $data["model"] . "</b>" . " ";
-                echo $data["type"] . " ";
-                echo $data["kleur"] . " ";
-                echo $data["gewicht"] . " ";
-                echo $data["prijs"] . " ";
-                echo $data["voorraad"] . "<br>";
-            }
-    } catch(PDOExeption $e) {
-        die("ERROR STATUS" . $e->getMessage());
+        return $this->renderForm('countries/update.html.twig', [
+            'form' => $form,
+        ]);
     }
 
-    echo "<br>";
+    #[Route('/delete/{id}', name: 'app_delete')]
+    public function delete(EntityManagerInterface $entityManager, int $id): Response
+    {
 
-    ?> 
-
-<br>
-<br>
-<h3>Functies hieronder:</h3>
-    <a href="insert.php">Auto Toevoegen</a>
-    <br>
-    <a href="update.php">Auto Bewerken</a>
-    <br>
-    <a href="delete.php">Auto Verwijderen</a>
-    <br>
-    <a href="detail.php">Auto Wegenbelasting bekijken</a>
-</body>
-</html>
-
-
-///insert.php
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
-<!-- JavaScript Bundle with Popper -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
-    <title>Document</title>
-</head>
-<body>
-
-<form method="post" action="">
-    <label>Model</label>
-    <input type="text" name="model">
-    <br>
-     <label>Type</label>
-    <input type="text" name="type">
-    <br>
-     <label>Kleur</label>
-    <input type="text" name="kleur">
-    <br>
-     <label>Gewicht</label>
-    <input type="text" name="gewicht">
-    <br>
-     <label>Prijs</label>
-    <input type="text" name="prijs">
-    <br>
-     <label>Voorraad</label>
-    <input type="text" name="voorraad">
-    <br>
-    <input type="submit" name="verzenden" value="Toevoegen">
-</form>
-    <?php
-
-try{
-    $db = new PDO("mysql:host=localhost;dbname=autovoorraad", "root", "");
-
-    if(isset($_POST["verzenden"])){
-      if(!empty($_POST["model"]) && !empty($_POST["type"]) && !empty($_POST["kleur"]) && !empty($_POST["gewicht"]) && !empty($_POST["prijs"]) && !empty($_POST["voorraad"])) {
-    if($_POST["voorraad"] < 1 ) {
-        echo "<br>" ."Dit getal bestaat niet!";
-    } else if ($_POST["voorraad"] >= 1){
-        $model = filter_input(INPUT_POST, "model", FILTER_SANITIZE_STRING);
-        $type = filter_input(INPUT_POST, "type", FILTER_SANITIZE_STRING);
-        $kleur = filter_input(INPUT_POST, "kleur", FILTER_SANITIZE_STRING);
-        $gewicht = filter_input(INPUT_POST, "gewicht", FILTER_SANITIZE_STRING);
-        $prijs = filter_input(INPUT_POST, "prijs", FILTER_SANITIZE_STRING);
-        $voorraad = filter_input(INPUT_POST, "voorraad", FILTER_SANITIZE_STRING);
-
-        $query = $db->prepare("INSERT INTO autos(model,type,kleur,gewicht,prijs,voorraad) VALUES(:model, :type, :kleur, :gewicht, :prijs, :voorraad)");
-
-        $query->bindParam("model", $model);
-        $query->bindParam("type", $type);
-        $query->bindParam("kleur", $kleur);
-        $query->bindParam("gewicht", $gewicht);
-        $query->bindParam("prijs", $prijs);
-        $query->bindParam("voorraad", $voorraad);
-    }
-    if($query->execute()){
-    echo "<div class=alert alert-danger role=alert  >
-        A simple warning alert—check it out!  
-      </div>";
-        echo "De nieuwe gegevens zijn toegevoed";
-    } else {
-        echo "Er heeft zich een fout opgetreden";
-    }
-    echo "<br>";
-    
-} else {
-    echo "Vul alle velden in";
-}
-    }
- } catch(PDOExeption $e) {
-    die("ERROR STATUS" . $e->getMessage());
- }
-    ?>
-
-<br>
-<br>
-<h2><a href="index.php">Terug naar de Homepagina</a></h2>
-</body>
-</html>
-
-///update.php///
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>updateMaster</title>
-</head>
-<body>
-    <?php
-    try {
-        $db = new PDO("mysql:host=localhost;dbname=autovoorraad", "root", "");
-
-        $query = $db->prepare("SELECT * FROM autos");
-        $query->execute();
-        $result = $query->fetchAll(PDO::FETCH_ASSOC);
-
-        foreach($result as $data){
-            echo "<a href='updatedetail.php?id=" .  $data['id']."'>";
-            echo $data["model"] . " " .  $data["type"] . " " .  $data["kleur"] . " " .   $data["gewicht"] . " " .  $data["prijs"] . " " .  $data["voorraad"];
-            echo "</a>";
-            echo "<br>";
+        $delete = $entityManager->getRepository(Country::class)->find($id);
+        if (!$delete) {
+            throw $this->createNotFoundException(
+                'No product found for id ' . $id
+            );
         }
-    } catch(PDOExeption $e){
-        die("Error Code:" . $e->getMessage);
-    }
-    ?>
-    <br>
-    <br>
-    <h2><a href="index.php">Terug naar de Homepagina</a></h2>
-</body>
-</html>
+        $entityManager->remove($delete);
+        $entityManager->flush();
 
-///updatedetail.php///
+        return $this->redirectToRoute('app_countries');
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-<form method="post" action="">
-    <label>kleur</label>
-    <input type="text" name="kleur"><br>
-    <label>gewicht</label>
-    <input type="text" name="gewicht"><br>
-    <label>prijs</label>
-    <input type="text" name="prijs"><br>
-    <label>voorraad</label>
-    <input type="text" name="voorraad"><br>
-    <input type="submit" name="verzenden" value="verzenden">
-</form>
-
-    <?php
-
-        try{
-            $db = new PDO("mysql:host=localhost;dbname=autovoorraad", "root", "");
-            
-            if(isset($_POST["verzenden"])){
-                if(empty($_POST["kleur"]) && empty($_POST["gewicht"]) && empty($_POST["prijs"]) && empty($_POST["voorraad"])) {
-                    echo "Vul alle velden in";
-                } else {
-                $model = filter_input(INPUT_POST, "model", FILTER_SANITIZE_STRING);
-                $type = filter_input(INPUT_POST, "type", FILTER_SANITIZE_STRING);
-                $kleur = filter_input(INPUT_POST, "kleur", FILTER_SANITIZE_STRING);
-                $gewicht = filter_input(INPUT_POST, "gewicht", FILTER_SANITIZE_STRING);
-                $prijs = filter_input(INPUT_POST, "prijs", FILTER_SANITIZE_STRING);
-                $voorraad = filter_input(INPUT_POST, "voorraad", FILTER_SANITIZE_STRING);
-
-                $query = $db->prepare("UPDATE autos SET kleur = :kleur, gewicht = :gewicht, prijs = :prijs, voorraad = :voorraad WHERE id = :id");
-                $query->bindParam("kleur", $kleur);
-                $query->bindParam("gewicht", $gewicht);
-                $query->bindParam("prijs", $prijs);
-                $query->bindParam("voorraad", $voorraad);
-                $query->bindParam("id", $_GET['id']);
-                if($query->execute()){
-                    echo "De gegevens zijn bijgewerkt";
-                } else {
-                    echo "Er heeft zich een fout opgetreden!";
-                }
-            }
-                echo "<br>";
-            } else {
-                $query = $db->prepare("SELECT * FROM autos WHERE id = :id");
-                $query->bindParam("id", $_GET['id']);
-                $query->execute();
-                $result = $query->fetchAll(PDO::FETCH_ASSOC);
-
-                foreach($result as $data) {
-                   echo  "<b>" . $data["model"] . "</b>" .  " ";
-                   echo $data["type"] . " ";
-                   echo $data["kleur"] . " ";
-                   echo $data["gewicht"] . " ";
-                   echo $data["prijs"] . " ";
-                   echo $data["voorraad"] . " ";
-                }
-            }
-        } catch(PDOExeption $e) {
-            die("ERROR REASON:" . $e->getMessage());
-        }
-    ?>
-
-<br>
-<h2><a href="index.php">Terug naar de Homepagina</a></h2>
-</body>
-</html>
-
-///delete.php///
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <?php
-
-    try{
-        $db = new PDO("mysql:host=localhost;dbname=autovoorraad", "root", "");
-
-        if(isset($_GET['id'])) {
-            $query = $db->prepare("DELETE FROM autos WHERE id = :id");
-            $id = filter_input(INPUT_GET, "id", FILTER_SANITIZE_NUMBER_INT);
-            $query->bindParam("id", $id);
-            if($query->execute()){
-                echo "Het item is verwijderd!";
-            } else {
-                echo "Er heeft zich een fout opgetreden";
-            }
-            echo "<br>";
-        }
-    } catch(PDOExeption $e){
-        die("ERROR REASON:" . $e->getMessage());
     }
 
-    $query = $db->prepare("SELECT * FROM autos");
-    $query->execute();
-    $result = $query->fetchAll(PDO::FETCH_ASSOC);
-    foreach($result as $data){
-        echo "<a href='delete.php?id=" . $data['id'] . "'>";
-        echo $data["model"] . " " .  $data["type"] . " " .  $data["kleur"] . " " .   $data["gewicht"] . " " .  $data["prijs"] . " " .  $data["voorraad"];
-        echo "</a>";
-        echo "<br>"; 
-    }
+////index.twig///
 
-    ?>
-<br>
-<br>
-    <h2><a href="index.php">Terug naar de Homepagina</a></h2>
-</body>
-</html>
+{% extends 'base.html.twig' %}
 
-///detail.php///
+{% block title %}Hello CountriesController!{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-</head>
-<body>
-    <?php
+{% block body %}
+    <h4>  Continent naam</h4>
+    <table class="table">
 
-try{
-    $db = new PDO("mysql:host=localhost;dbname=autovoorraad", "root", "");
+        {% for Continent in showre %}
+        <tbody>
+        <tr>
 
-    if(isset($_POST["verzenden"])){
-      if(!empty($_POST["model"]) && !empty($_POST["type"]) && !empty($_POST["kleur"]) && !empty($_POST["gewicht"]) && !empty($_POST["prijs"]) && !empty($_POST["voorraad"])) {
+            <td>{{ Continent.name }}</td>
+            <td > <a class="btn btn-primary" href="{{ path('app_landen', {id: Continent.id}) }}">landen</a></td>
+            <td><a class="btn btn-warning" href="{{ path('app_update', {id: Continent.id}) }}">update</a></td>
+        </tr>
 
-        if($data["gewicht"] >= 500) {
-            echo "Wegenbelasting per maand : €18,00";
-        } else if ($data["gewicht"] >= 750){
-            echo "Wegenbelasting per maand : €22,00";
-        } else if ($data["gewicht"] >= 1000) {
-            echo "Wegenbelasting per maand : €40,00";
-        } else if ($data["gewicht"] >= 1500) {
-        echo "Wegenbelasting per maand : €60,00";
-            
-        $result = $query->fetchAll(PDO::FETCH_ASSOC);
-        foreach($result as $data){
-            echo "<b>" . $data["model"] . "</b>" . " ";
-            echo $data["type"] . " ";
-            echo $data["kleur"] . " ";
-            echo $data["gewicht"] . " ";
-            echo $data["prijs"] . " ";
-            echo $data["voorraad"] . "<br>";
-        }
-        }
-    
-      }
-    }
- } catch(PDOExeption $e) {
-    die("ERROR STATUS" . $e->getMessage());
- }
-    
-    ?>
-<br>
-<br>
-<h2><a href="index.php">Terug naar de Homepagina</a></h2>
-</body>
-</html>
 
-// potentioal css//
+        {% endfor %}
 
-table{
-    border-collapse: collapse;
-    border: 1px solid black;
-}
-td {
-    border: 1px solid black;
-    width: 100px;
-}
+    </table>
+    <a href="/insert">insert</a>
+
+{% endblock %}
+
+
+//// land.twig/// 
+
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello CountriesController!{% endblock %}
+
+{% block body %}
+    <table class="table">
+
+        {% for showlanden in landen %}
+        <tbody>
+        <tr>
+
+            <td>{{ showlanden.name }}</td>
+            <td > <a class="btn btn-danger" href="{{ path('app_delete', {id: showlanden.id}) }}">delete</a></td>
+{#            <td><a class="btn btn-warning" href="{{ path('app_updatecon') }}">update</a></td>#}
+
+        </tr>
+        {% endfor %}
+
+    </table>
+{#    <a class="btn btn-success" href="/insert">insert</a> <br>#}
+    <a class="btn btn-dark mt-5" href="/home">back</a>
+
+{% endblock %}
+
+
+
+//// update/insert.twig////
+
+{%extends 'base.html.twig' %}
+{% block body %}
+<div class="container">
+    {{ form(form) }}
+</div>
+{% endblock %}
