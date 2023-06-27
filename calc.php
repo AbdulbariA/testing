@@ -1,259 +1,179 @@
-??db?? DATABASE_URL="mysql://root:@127.0.0.1:3306/Cars?serverVersion=mariadb-10.5.8" 
+//// main controller ///
 
-or
-
-DATABASE_URL="mysql://root:@127.0.0.1:3306/Films?serverVersion=10.4.24-MariaDB"
-
-
-
-
-
-use App\Entity\Genre;
-
-///controller//
-
-    #[Route('/', name: 'app_home')]
-    public function home(GenreRepository $genreRepository): Response
+    #[Route('/', name: 'app_auto')]
+    public function index(): Response
     {
-        $genres = $genreRepository->findAll();
-        return $this->render('film/index.html.twig', [
-            'genres' => $genres,
-
-        ]);
-    }
-
-    #[Route('/film/{id}', name: 'app_film')]
-    public function films(Genre $genre, FilmRepository $filmRepository): Response
-    {
-        $genreName = $genre->getName();
-        $films = $filmRepository->findBy(['genre'=>$genre]);
-        return $this->render('film/films.html.twig', [
-            'films' => $films,
-            'name' => $genreName
-
+        return $this->render('auto/index.html.twig', [
+            'controller_name' => 'AutoController',
         ]);
     }
 
 
-
-\\index/home\\
-
-
-
-    <h1>Genres</h1>
-    {% for genre in genres %}
-        <a href="{{ path('app_film', {id: genre.id}) }}">{{ genre.name }}</a>
-    {% endfor %}
-
-
-\\film/whatever\\
-
-    <h1>{{ name }}</h1>
-
-    {% for film in films %}
-    <table class="table">
-        <tr>
-            <td>
-                film name:
-                <a>{{ film.title }}</a>
-            </td>
-
-            <td>
-                film description:
-                <a>{{ film.description }}</a>
-            </td>
-
-            <td>
-                film budget:
-                <a>{{ film.budget }}</a>
-            </td>
-
-        </tr>
-
-        {% endfor %}
-    </table>
-
-
-///index////
-
-<table class="table">
-<tr>
-    <th>Model</th>
-    <th>type</th>
-    <th>price</th>
-</tr>
-
-{% for auto in autos %}
-       <tr>
-           <td>{{ auto.model }}</td>
-           <td>{{ auto.type }}</td>
-           <td>{{ auto.prijs }}</td>
-           <td> <a class="btn btn-primary" href="{{ path('app_details',{id: auto.id}) }}">details</a>  </td>
-
-       </tr>
-
-
-    {% endfor %}
-    </table>
-
-
-
-
-    #[Route('/', name: 'app_home')]
-    public function home(AutosRepository $autosRepository): Response
+    #[Route('/display', name:'display')]
+    public function display(EntityManagerInterface $entityManager):Response
     {
-        $autos = $autosRepository->findAll();
-        return $this->render('autos/index.html.twig', [
-            'autos' => $autos,
+        $autos=$entityManager->getRepository(Auto::class)->findAll();
+        //dd($autos);
+        return $this->render('auto/display.html.twig',[
+            'autos'=>$autos,
+            'opdracht'=>'Toets CRUD'
         ]);
     }
-
-    #[Route('/details/{id}', name: 'app_details')]
-    public function details( Autos $auto, AutosRepository $autosRepository): Response
+    #[Route('/update/{id}',name:'update')]
+    public function update(Request $request,EntityManagerInterface $entityManager, int $id)
     {
-        return $this->render('autos/details.html.twig', [
-            'auto' => $auto,
-        ]);
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calc</title>
-</head>
-<body>
-    <form method="POST">
-    <label>Getal1</label>    
-    <input type="text" name="getal1"> <br>
-    <label>Getal2</label>    
-    <input type="text" name="getal2"> <br>
-    <label></label>  
-    <input type="radio" name="calc" value="Optellen" >Optellen  
-    <input type="radio" name="calc" value="Aftrekken" >Aftrekken  
-    <input type="radio" name="calc" value="Delen" >Delen  
-    <input type="radio" name="calc" value="Vermenigvuldigen" >Vermenigvuldigen <br> 
-    <input type="submit" name="submit">
-    </form>
-
-    <?php
-    $getal1 = filter_input(INPUT_POST, "getal1", FILTER_VALIDATE_FLOAT);
-    $getal2 = filter_input(INPUT_POST, "getal2", FILTER_VALIDATE_FLOAT);
-    $operator = filter_input(INPUT_POST, "calc");
-
-   
-    if(isset($_POST['submit'])) {
-        if (!$getal2 || !$getal2) {
-        echo "Vul ee getal in!";
-        } else if (empty($operator)){
-            echo "Vul een operator in!";
-        } else {
-            switch ($operator) {
-                case 'Optellen':
-                    $result = $getal1 + $getal2;
-                    echo "$getal1 + $getal2 = $result";
-                    break;
-                case 'Aftrekken':
-                    $result = $getal1 - $getal2;
-                    echo "$getal1 - $getal2 = $result";
-                    break;
-                case 'Delen':
-                    $result = $getal1 / $getal2;
-                    echo "$getal1 / $getal2 = $result";
-                    break;
-                case 'Vermenigvuldigen':
-                    $result = $getal1 * $getal2;
-                    echo "$getal1 * $getal2 = $result";
-                    break;
-                default:
-                    echo "Er is een fout opgetreden";
-                    break;
-            }
+        $auto=$entityManager->getRepository(Auto::class)->find($id);
+
+        $form=$this->createForm(AutoType::class,$auto);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted()) {
+            $auto=$form->getData();
+            $entityManager->persist($auto);
+            $entityManager->flush();
+            return $this->redirectToRoute('display');
         }
+        return $this->renderForm('auto/insert.html.twig', [
+            'auto_form'=>$form
+        ]);
     }
-    ?>
-</body>
-</html>
+
+    #[Route('/insert', name:'insert')]
+    public function insert(Request $request,EntityManagerInterface $entityManager):Response
+    {
+        $auto=new auto();
+        $form=$this->createForm(autoType::class,$auto);
+        $form->handleRequest($request);
+
+        if($form->isSubmitted()) {
+            $auto=$form->getData();
+            $entityManager->persist($auto);
+            $entityManager->flush();
+            return $this->redirectToRoute('display');
+        }
+        return $this->renderForm('auto/insert.html.twig', [
+            'auto_form'=>$form
+        ]);
+    }
+    #[Route('/details/{id}', name: 'app_data')]
+    public function details(auto $autos, autoRepository $autosRepository): Response
+    {
+        $details =$autosRepository->findBy( ['id'=>$autos]);
+        return $this->render('auto/details.html.twig', [
+            'id' => $autos,
+            'data' => $details,
+        ]);
+    }
+    #[Route('/delete/{id}', name: 'app_delete')]
+    public function delete(EntityManagerInterface $entityManager ,int $id): Response
+    {
+        $deleteAuto= $entityManager->getRepository(auto::class)->find($id);
+        if (!$deleteAuto){
+            throw $this->createNotFoundException(
+                'No product found for id '.$id
+            );
+        }
+        $entityManager->remove($deleteAuto);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('display');
+
+    }
+
+
+//// insert.twig///
+
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        {{ form(auto_form) }}
+    </div>
+{% endblock %}
+
+
+//// details.twig ////
+
+{% extends 'base.html.twig' %}
+{% block body %}
+    <div class="hero-image">
+        <div class="hero-text">
+            <h1>Welcome to ,<span class="text-warning">Golans' Cars </span></h1>
+            <p>the best and the only</p>
+            <a href="#" class="btn btn-outline-dark"><span class="text-light">lets start it</span> </a>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Number</th>
+            <th scope="col">Model</th>
+            <th scope="col">type</th>
+            <th scope="col">gewicht</th>
+            <th scope="col">prijs</th>
+            <th scope="col">kleur</th>
+            <th scope="col">voorraad</th>
+        </tr>
+        </thead>
+        <tbody>
+
+
+        {% for Autos in data %}
+
+        <tr>
+            <th scope="row"> {{ Autos.id }}</th>
+            <td>{{ Autos.model }}</td>
+            <td>{{ Autos.type }}</td>
+            <td>{{ Autos.gewicht }}</td>
+            <td>{{ Autos.prijs }}</td>
+            <td>{{ Autos.kleur }}</td>
+            <td>{{ Autos.voorraad }}</td>
+
+
+            {% endfor %}
+        </tbody>
+
+        </thead>
+    </table>
+    <a href="/home" class="btn btn-info ms-2">back</a>
+
+
+{% endblock %}
+
+
+/// display ///
+
+{% extends 'base.html.twig' %}
+
+{% block body %}
+    <div class="container">
+        <h1>{{ opdracht }}</h1>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Model</th>
+                <th>Type</th>
+                <th>prijs</th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for auto in autos %}
+                <tr>
+                    <td>{{  auto.model}}</td>
+                    <td>{{ auto.type }}</td>
+                    <td>{{ auto.prijs }}</td>
+                    <td><a href="{{ path ('app_data',{id: auto.id})  }}">details</a></td>
+                    <td><a href="{{ path ('update',{id: auto.id})  }}">update</a></td>
+                    <td><a href="{{ path ('app_delete',{id: auto.id})  }}">delete</a></td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <a href="/insert">insert</a>
+    </div>
+{% endblock %}
+
