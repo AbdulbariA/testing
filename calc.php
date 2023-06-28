@@ -324,16 +324,6 @@
     <a class="btn btn-dark mt-5" href="/home">back</a>
 {% endblock %}
 
-/// notable shit ///
-{{ teams would be the _link}}
-   ->add('team', EntityType::class,[
-                'class' => 'App\Entity\Group',
-                'choice_label' => 'name',
-            ])
-
-            ->add('save', SubmitType::class)
-
-
 
 
 //// update/insert.twig////
@@ -344,3 +334,14 @@
     {{ form(form) }}
 </div>
 {% endblock %}
+
+/// notable shit ///
+{{ teams would be the _link}}
+   ->add('team', EntityType::class,[
+                'class' => 'App\Entity\Group',
+                'choice_label' => 'name',
+            ])
+
+            ->add('save', SubmitType::class)
+    form_themes: ['bootstrap_5_layout.html.twig']
+
