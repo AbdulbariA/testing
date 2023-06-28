@@ -1,0 +1,149 @@
+#[Route('//', name: 'app_champions_league')]
+    public function index( GroupRepository $groupRepository): Response
+    {
+        $group = $groupRepository->findAll();
+        return $this->render('champions_league/index.html.twig', [
+            'groups'=>$group
+        ]);
+    }
+
+//// index.twig /////
+
+{% block body %}
+    <h4>  Group name </h4>
+    <table class="table">
+
+        {% for group in groups %}
+        <tbody>
+        <tr>
+
+            <td>{{ group.name }}</td>
+            <td>{{ group.description }}</td>
+            <td > <a class="btn btn-primary" href="{{ path('app_teams', {id: group.id}) }}">Details</a></td>
+            <td><a class="btn btn-warning" href="{{ path('app_update', {id: group.id}) }}">update</a></td>
+        </tr>
+
+
+        {% endfor %}
+
+    </table>
+    <a href="/insert">insert</a>
+
+{% endblock %}
+
+     //// insert/update /////
+
+    #[Route('/insert', name: 'app_add')]
+    public function add(Request $request, EntityManagerInterface $entityManager): Response
+    {
+
+        $add = new Teams();
+
+        $form = $this->createForm(AddTeamType::class, $add);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $add = $form->getData();
+
+            $entityManager->persist($add);
+            $entityManager->flush();
+            return $this->redirectToRoute('app_champions_league');
+        }
+
+        return $this->renderForm('champions_league/insert.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
+#[Route('/update/{id}', name: 'app_update')]
+    public function update(Group $group, Request $request, EntityManagerInterface $entityManager): Response
+    {
+        $TeamId = $group->getId();
+        $group = $entityManager->getRepository(Group::class)->find($TeamId);
+
+        $form = $this->createForm(AddGroupType::class, $group);
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $add = $form->getData();
+
+            $entityManager->persist($add);
+            $entityManager->flush();
+
+            return $this->redirectToRoute('app_champions_league');
+        }
+
+        return $this->renderForm('champions_league/update.html.twig', [
+            'form' => $form,
+        ]);
+    }
+
+    //// insert/update.twig /////
+
+{%extends 'base.html.twig' %}
+{% block body %}
+<div class="container">
+    {{ form(form) }}
+</div>
+{% endblock %}
+
+
+
+///// delete ////
+
+
+    #[Route('/delete/{id}', name: 'app_delete')]
+    public function delete(EntityManagerInterface $entityManager, int $id): Response
+    {
+
+        $delete = $entityManager->getRepository(Teams::class)->find($id);
+        if (!$delete) {
+            throw $this->createNotFoundException(
+                'No product found for id ' . $id
+            );
+        }
+        $entityManager->remove($delete);
+        $entityManager->flush();
+
+        return $this->redirectToRoute('app_champions_league');
+
+    }
+
+
+//// details ///
+ #[Route('/teams/{id}', name: 'app_teams')]
+    public function details(int $id,TeamsRepository $teamsRepository): Response
+    {
+        $team = $teamsRepository->findBy(['team'=>$id]);
+        return $this->render('champions_league/details.html.twig', [
+            'teams' => $team,
+        ]);
+    }
+
+//// details.twig ///
+
+{% block body %}
+    <table class="table">
+
+        {% for team in teams %}
+        <tbody>
+        <tr>
+            <td>{{ team.name }}</td>
+            <td > <a class="btn btn-danger" href="{{ path('app_delete', {id: team.id}) }}">delete</a></td>
+        </tr>
+        {% endfor %}
+
+    </table>
+    <a class="btn btn-dark mt-5" href="/home">back</a>
+{% endblock %}
+
+/// notable shit ///
+{{ teams would be the _link}}
+   ->add('team', EntityType::class,[
+                'class' => 'App\Entity\Group',
+                'choice_label' => 'name',
+            ])
+
+            ->add('save', SubmitType::class)
+
+
