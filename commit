@@ -312,7 +312,10 @@ body {margin:0;}
 
 
 /// Form Commands///
-
+->add('user', EntityType::class,[
+                'class' => 'App\Entity\User',
+                'choice_label' => 'master',
+            ])
 ->add('submit', SubmitType::class)
 ->add('date', DateType::class)
 
